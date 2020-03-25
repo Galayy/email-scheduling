@@ -1,0 +1,143 @@
+openapi: 3.0.0
+info:
+  version: "1.0"
+  title: Email scheduler
+servers:
+  - url: /api/v1
+
+paths:
+
+  /emails/send:
+    post:
+      tags:
+        - emails
+      operationId: create
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+        required: true
+      responses:
+        201:
+          description: First email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email'
+        400:
+          description: Email address is invalid
+      deprecated: false
+  /emails:
+    get:
+      tags:
+        - emails
+      operationId: getEmails
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Email'
+      deprecated: false
+  /emails/{id}:
+    get:
+      tags:
+        - emails
+      operationId: getById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email'
+        400:
+          description: Invalid UUID
+        404:
+          description: NOT_FOUND
+      deprecated: false
+    put:
+      tags:
+        - emails
+      operationId: updateById
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailRequest'
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Email'
+        400:
+          description: Invalid UUID
+        404:
+          description: NOT_FOUND
+      deprecated: false
+    delete:
+      tags:
+        - emails
+      operationId: deleteById
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        204:
+          description: NO_CONTENT
+        400:
+          description: Invalid UUID
+      deprecated: false
+
+components:
+
+  # ========================================
+  # ===== Models
+  # ========================================
+
+  schemas:
+
+    Email:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          readOnly: true
+        emailAddress:
+          type: string
+        lastSentAt:
+          type: string
+          format: date-time
+          readOnly: true
+
+    EmailRequest:
+      type: object
+      required:
+        - emailAddress
+      properties:
+        emailAddress:
+          type: string
+          pattern: '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}$'
+
+  # ========================================
+  # ===== Parameters
+  # ========================================
+
+  parameters:
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
